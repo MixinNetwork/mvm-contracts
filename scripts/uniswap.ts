@@ -6,8 +6,8 @@ async function main() {
 
   const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
 
-  // Attach factory
-  // const factory = await UniswapV2Factory.attach("factory address");
+  // Attach factory exmaple
+  // const factory = await UniswapV2Factory.attach("0xd66c174a322eF2Ca6EabDFECaFbB2826Ccfd5cbf");
 
   // Deploy factory
   const factory = await UniswapV2Factory.deploy(deployer.address);
@@ -17,8 +17,8 @@ async function main() {
     "UniswapV2Router02"
   );
 
-  // Attach router
-  // const router = await UniswapV2Router02.attach("router address");
+  // Attach router exmaple
+  // const router = await UniswapV2Router02.attach("0xd66c174a322eF2Ca6EabDFECaFbB2826Ccfd5cbf");
 
   // Deploy router
   const router = await UniswapV2Router02.deploy(
@@ -29,8 +29,8 @@ async function main() {
 
   const UniswapMVMRouter = await ethers.getContractFactory("UniswapMVMRouter");
 
-  // Attach mvm router
-  // const mvmRouter = await UniswapMVMRouter.attach("mvm router address");
+  // Attach mvm router exmaple
+  // const mvmRouter = await UniswapMVMRouter.attach("0x2b60ce6462EDFD5E387f85eF41413aecD1951470");
 
   // Deploy mvm router
   const mvmRouter = await UniswapMVMRouter.deploy(router.address);
