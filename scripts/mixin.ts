@@ -22,6 +22,15 @@ async function main() {
   // await registry.deployed();
   const registry = Registry.attach("0xFD15C385B62D8282a625c9624624DD3Cf6ABa16A");
   console.log("registry deployed to:", registry.address);
+
+  // publish contract use bot: 7000103716
+  // user_id: e9bbcf73-66ba-3d1d-8325-4e117866f829
+
+  const Bridge = await ethers.getContractFactory("Bridge");
+  // const bridge = await Bridge.deploy();
+  // await bridge.deployed();
+  const bridge = Bridge.attach("0xBb993F08B7982055D5C2e438832ef5505Eb35Ac9");
+  console.log("bridge deployed to:", bridge.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
