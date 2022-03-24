@@ -1,5 +1,6 @@
 // yarn hardhat run --network quorum scripts/mixin.ts
 import { ethers } from "hardhat";
+const ABI = require('../artifacts/contracts/mixin/bridge.sol/Bridge.json');
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -29,8 +30,11 @@ async function main() {
   const Bridge = await ethers.getContractFactory("Bridge");
   // const bridge = await Bridge.deploy();
   // await bridge.deployed();
-  const bridge = Bridge.attach("0xBb993F08B7982055D5C2e438832ef5505Eb35Ac9");
-  console.log("bridge deployed to:", bridge.address);
+  let bridge = Bridge.attach("0xBb993F08B7982055D5C2e438832ef5505Eb35Ac9");
+
+  // await bridge.bind("0xce9Ccf54865Fbae2dC2b1164Eb3E442e366A4ea2");
+  const bridgeAbi = new ethers.Contract(bridge.address, ABI.abi, deployer);
+  console.log("Bridged address:", await bridgeAbi.bridges(deployer.address));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
