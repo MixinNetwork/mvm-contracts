@@ -7,8 +7,8 @@ async function main() {
   console.log("Deploying contracts with the account: " + deployer.address);
   console.log("Deployer balance", await deployer.getBalance());
 
-  const BLS = await ethers.getContractFactory("BytesLib")
-  const bls = await BLS.attach("0x4DB4032B274Db4Ef0530fA18F31897fF150F7fAc");
+  const BLS = await ethers.getContractFactory("BLS");
+  const bls = await BLS.attach("0xC164E080B874921F49199de49695dd511d2e5D52");
   // const bls = await BLS.deploy();
   // await bls.deployed();
   console.log("byteslib deployed to:", bls.address);
@@ -20,9 +20,9 @@ async function main() {
   });
   // https://github.com/MixinNetwork/trusted-group/blob/master/mvm/quorum/contracts/mixin.sol#L27
   // ["2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425", "007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c", "2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673",  "257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f"]
-  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0x03c1900104dc3d1294aaaf68436e9139");
+  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0xf7f56b709bfc3a3d948f329699ad6f68");
   // await registry.deployed();
-  const registry = Registry.attach("0x5F4Ee598171b7d6aB771d4BFBc57AC3dB1256628");
+  const registry = Registry.attach("0x68a99087Bd6e08Ef73A2479C8206308DbD65c3B8");
   console.log("registry deployed to:", registry.address);
 
   // publish contract use bot: 7000103716
