@@ -1,3 +1,4 @@
+// yarn test test/uniswap.ts
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
