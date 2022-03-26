@@ -4,7 +4,7 @@ pragma solidity >=0.8.4 <0.9.0;
 import "hardhat/console.sol";
 
 contract Depository {
-  mapping(uint => bytes) public shelves;
+  mapping(uint => bytes) private shelves;
 
   function persistReadData(uint _id) public view returns (bytes memory) {
     return shelves[_id];
