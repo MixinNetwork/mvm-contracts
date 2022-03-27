@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.4 <0.9.0;
+pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 
@@ -10,8 +10,9 @@ contract Depository {
     return shelves[_id];
   }
 
-  function persistWriteData(bytes memory _raw) public returns (uint) {
+  function persistWriteData(uint _id, bytes memory _raw) public returns (uint) {
     uint id = uint256(keccak256(_raw));
+    require(id == _id, "invalid _id or _raw");
     shelves[id] = _raw;
     return id;
   }
