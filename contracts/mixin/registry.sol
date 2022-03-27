@@ -31,6 +31,7 @@ contract MixinUser is Registrable {
 
     function run(address asset, uint256 amount, bytes memory extra) external onlyRegistry() returns (bool result) {
         if (extra.length < 24) {
+            try Registry(registry).claim(asset, amount) {} catch {}
             return true;
         }
         address process = extra.toAddress(0);
@@ -107,6 +108,7 @@ contract Registry {
     mapping(address => bytes) public users;
     mapping(address => uint128) public assets;
     mapping(uint => address) public contracts;
+    mapping(uint => bytes) public depository;
 
     struct Event {
         uint64 nonce;
@@ -220,10 +222,16 @@ contract Registry {
         return MixinUser(evt.user).run(evt.asset, evt.amount, evt.extra);
     }
 
-    function parseEventExtra(bytes memory raw, uint offset) internal pure returns(uint, bytes memory, uint64) {
+    function parseEventExtra(bytes memory raw, uint offset) internal view returns(uint, bytes memory, uint64) {
         uint size = raw.toUint16(offset);
         offset = offset + 2;
         bytes memory extra = raw.slice(offset, size);
+        if (size == 32) {
+            bytes memory memo = depository[extra.toUint256(0)];
+            if (memo.length > 0) {
+                extra = memo;
+            }
+        }
         offset = offset + size;
         uint64 timestamp = raw.toUint64(offset);
         offset = offset + 8;
@@ -264,6 +272,12 @@ contract Registry {
         bytes memory input = extra.slice(offset, extra.length - offset);
         address asset = getOrCreateAssetContract(id, symbol, name);
         return (asset, input);
+    }
+
+    function persistWriteData(uint _key, bytes memory _raw) public {
+        uint key = uint256(keccak256(_raw));
+        require(key == _key, "invalid _id or _raw");
+        depository[key] = _raw;
     }
 
     function getOrCreateAssetContract(uint128 id, string memory symbol, string memory name) internal returns (address) {
