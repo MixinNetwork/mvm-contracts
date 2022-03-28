@@ -27,6 +27,7 @@ async function main() {
   console.log("registry deployed to:", registry.address);
   const registryAbi = new ethers.Contract(registry.address, RegistryABI.abi, deployer);
   console.log("registry user", await registryAbi.users("0x0215fD72e01e806AeD843F3a0161A0c003969421"));
+  console.log("registry INBOUND", await registryAbi.INBOUND());
 
   // publish contract use bot: 7000103716
   // user_id: 2f930b66-be1e-3a69-9b1a-03ba727e05d3
