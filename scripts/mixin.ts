@@ -21,17 +21,15 @@ async function main() {
   });
   // https://github.com/MixinNetwork/trusted-group/blob/master/mvm/quorum/contracts/mixin.sol#L27
   // ["2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425", "007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c", "2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673",  "257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f"]
-  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0x2f930b66be1e3a699b1a03ba727e05d3");
+  // user_id: 041781e6-eb19-3c4a-bcd4-f4a23112d112
+  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0x041781e6eb193c4abcd4f4a23112d112");
   // await registry.deployed();
-  // Original contract address without depository: 0x43acDdE3f6C3f25c6Cd51f9d70f74607A16E9620
-  const registry = Registry.attach("0xF5Ca159B1a70ff0EDef418f3F5039478BE4Abf30");
+  const registry = Registry.attach("0x2139b46ab7F3FF61EdEE83C11AEE749d7e653398");
+  // publish 041781e6-eb19-3c4a-bcd4-f4a23112d112:0x2139b46ab7F3FF61EdEE83C11AEE749d7e653398:META
   console.log("registry deployed to:", registry.address);
   const registryAbi = new ethers.Contract(registry.address, RegistryABI.abi, deployer);
   console.log("registry user", await registryAbi.users("0x0215fD72e01e806AeD843F3a0161A0c003969421"));
   console.log("registry INBOUND", await registryAbi.INBOUND());
-
-  // publish contract use bot: 7000103716
-  // user_id: 2f930b66-be1e-3a69-9b1a-03ba727e05d3
 
   const Bridge = await ethers.getContractFactory("Bridge");
   // const bridge = await Bridge.deploy();
