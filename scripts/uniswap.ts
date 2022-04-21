@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+const UniswapV2Router02ABI = require('../artifacts/contracts/periphery/UniswapV2Router02.sol/UniswapV2Router02.json');
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -24,6 +25,8 @@ async function main() {
   // Attach router exmaple
   const router = await UniswapV2Router02.attach("0x0bBe54e2B11D6671238EDB6FB3eD83f73A1ca3dF");
   console.log("UniswapV2Router02 address: " + router.address);
+  const routerAbi = new ethers.Contract(router.address, UniswapV2Router02ABI.abi, deployer);
+  console.log("UniswapV2Router02 getAmountsOut", await routerAbi.getAmountsOut("0x2710",["0xDF7d6a8b29C6C059d3B6fD0E1E4EBdE776590A9e", "0xd6684C8Dd9c57C2c33c37Fe5e06d7D2fC0643F09"]));
 
   const UniswapMVMRouter = await ethers.getContractFactory("UniswapMVMRouter");
   // Deploy mvm router
