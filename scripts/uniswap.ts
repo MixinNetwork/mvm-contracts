@@ -1,5 +1,6 @@
 import { ethers } from "hardhat";
 const UniswapV2FactoryABI = require('../artifacts/contracts/uniswap/UniswapV2Factory.sol/UniswapV2Factory.json');
+const UniswapPairABI = require('../artifacts/contracts/uniswap/UniswapV2Pair.sol/UniswapV2Pair.json');
 const UniswapV2Router02ABI = require('../artifacts/contracts/periphery/UniswapV2Router02.sol/UniswapV2Router02.json');
 
 async function main() {
@@ -17,7 +18,10 @@ async function main() {
   console.log("UniswapV2Factory address: " + factory.address);
   const factoryAbi = new ethers.Contract(factory.address, UniswapV2FactoryABI.abi, deployer);
   console.log("UniswapV2Factory allPairs", await factoryAbi.allPairs('0x02'));
-  console.log("UniswapV2Factory getPair", await factoryAbi.getPair("0xd6684C8Dd9c57C2c33c37Fe5e06d7D2fC0643F09", "0x6529C16A86432D7566701dF2A868c63cE0453FB7"));
+  console.log("UniswapV2Factory getPair", await factoryAbi.getPair("0xd6684C8Dd9c57C2c33c37Fe5e06d7D2fC0643F09", "0xDF7d6a8b29C6C059d3B6fD0E1E4EBdE776590A9e"));
+  const pair = new ethers.Contract("0x704cCd25904468265D1aD6aAf1FfFb86D6Afc542", UniswapPairABI.abi, deployer);
+  const reserves = await pair.getReserves();
+  console.log("UniswapV2Pair getReserves", reserves[0], reserves[1], reserves);
 
   const UniswapV2Router02 = await ethers.getContractFactory(
     "UniswapV2Router02"
