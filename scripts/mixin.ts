@@ -50,8 +50,13 @@ async function main() {
 
   // await bridge.bind("0xce9Ccf54865Fbae2dC2b1164Eb3E442e366A4ea2");
   const bridgeAbi = new ethers.Contract(bridge.address, BridgeABI.abi, deployer);
-  console.log("Bridged address:", await bridgeAbi.bridges(deployer.address));
   console.log("Bridged address:", await bridgeAbi.bridges("0x0215fD72e01e806AeD843F3a0161A0c003969421"));
+
+  const SimpleRefund = await ethers.getContractFactory("SimpleRefund");
+  // const refund = await SimpleRefund.deploy();
+  // await refund.deployed();
+  let refund = SimpleRefund.attach("0x07B0bF340765CAE77b734D82EB8d35229796CeBc");
+  console.log("Refund address:", refund.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
