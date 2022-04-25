@@ -31,15 +31,20 @@ contract MixinUser is Registrable {
         members = _members;
     }
 
-    function run(address asset, uint256 amount, bytes memory extra) external onlyRegistry() returns (bool result) {
+    function run(address asset, uint256 amount, bytes memory extra, bool isDelegatecall) external onlyRegistry() returns (bool result) {
         if (extra.length < 24) {
+            Registry(registry).claim(asset, amount);
             return true;
         }
         address process = extra.toAddress(0);
         MixinAsset(asset).approve(process, 0);
         MixinAsset(asset).approve(process, amount);
         bytes memory input = extra.slice(20, extra.length - 20);
-        (result, input) = process.call(input);
+        if (isDelegatecall) {
+            (result, input) = process.delegatecall(input);
+        } else {
+            (result, input) = process.call(input);
+        }
         try Registry(registry).claim(asset, amount) {} catch {}
         return result;
     }
@@ -106,6 +111,7 @@ contract Registry {
     mapping(address => bytes) public users;
     mapping(address => uint128) public assets;
     mapping(uint => address) public contracts;
+    mapping(uint => bytes) public values;
     mapping(uint128 => uint256) public balances;
     address[] public addresses;
     uint128[] public deposits;
@@ -248,7 +254,9 @@ contract Registry {
         (offset, id, evt.amount) = parseEventAsset(raw, offset);
         (offset, evt.extra, evt.timestamp) = parseEventExtra(raw, offset);
         (offset, evt.user) = parseEventUser(raw, offset);
-        (evt.asset, evt.extra) = parseEventInput(id, evt.extra);
+
+        bool isDelegatecall;
+        (evt.asset, evt.extra, isDelegatecall) = parseEventInput(id, evt.extra);
 
         offset = offset + 2;
         evt.sig = [raw.toUint256(offset), raw.toUint256(offset+32)];
@@ -267,7 +275,7 @@ contract Registry {
 
         emit MixinEvent(evt);
         MixinAsset(evt.asset).mint(evt.user, evt.amount);
-        return MixinUser(evt.user).run(evt.asset, evt.amount, evt.extra);
+        return MixinUser(evt.user).run(evt.asset, evt.amount, evt.extra, isDelegatecall);
     }
 
     function parseEventExtra(bytes memory raw, uint offset) internal pure returns(uint, bytes memory, uint64) {
@@ -301,7 +309,7 @@ contract Registry {
         return (offset, user);
     }
 
-    function parseEventInput(uint128 id, bytes memory extra) internal returns (address, bytes memory) {
+    function parseEventInput(uint128 id, bytes memory extra) internal returns (address, bytes memory, bool) {
         uint offset = 0;
         uint16 size = extra.toUint16(offset);
         offset = offset + 2;
@@ -313,7 +321,27 @@ contract Registry {
         offset = offset + size;
         bytes memory input = extra.slice(offset, extra.length - offset);
         address asset = getOrCreateAssetContract(id, symbol, name);
-        return (asset, input);
+        if (input.length < 24) {
+            return (asset, input, false);
+        }
+        uint8 op = input.toUint8(0);
+        input = input.slice(1, input.length - 1);
+        bool hasValue = op & 1 == 1;
+        if (hasValue && input.length >= 32) {
+            bytes memory value = values[input.toUint256(0)];
+             if (value.length > 0) {
+                input = value;
+            }
+        }
+        op = op >> 1;
+        bool isDelegatecall = op & 1 == 1;
+        return (asset, input, isDelegatecall);
+    }
+
+    function writeValue(uint _key, bytes memory raw) public {
+        uint key = uint256(keccak256(raw));
+        require(key == _key, "invalid key or raw");
+        values[key] = raw;
     }
 
     function getOrCreateAssetContract(uint128 id, string memory symbol, string memory name) internal returns (address) {
