@@ -43,6 +43,7 @@ async function main() {
   console.log("registry nxc address", await registryAbi.contracts("0x66152c0b335538ef9ec5cae97e29472a"));
   // ROAY 69b2d237-1eb2-3b6c-8e1d-3876e507b263
   console.log("registry ROAY address", await registryAbi.contracts("0x69b2d2371eb23b6c8e1d3876e507b263"));
+  console.log("registry get value", await registryAbi.values("0x090f420d92b6881cfecc5b0a17d31f54c8c2f75a7b37fe883de98da1e2a42fba"));
   console.log("registry INBOUND", await registryAbi.INBOUND());
 
   const Bridge = await ethers.getContractFactory("Bridge");
