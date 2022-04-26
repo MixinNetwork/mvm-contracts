@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 const UniswapV2FactoryABI = require('../artifacts/contracts/uniswap/UniswapV2Factory.sol/UniswapV2Factory.json');
 const UniswapPairABI = require('../artifacts/contracts/uniswap/UniswapV2Pair.sol/UniswapV2Pair.json');
 const UniswapV2Router02ABI = require('../artifacts/contracts/periphery/UniswapV2Router02.sol/UniswapV2Router02.json');
+const UniswapMVMRouterABI = require('../artifacts/contracts/periphery/UniswapMVMRouter.sol/UniswapMVMRouter.json');
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -41,12 +42,14 @@ async function main() {
 
   const UniswapMVMRouter = await ethers.getContractFactory("UniswapMVMRouter");
   // Deploy mvm router
-  // const mvmRouter = await UniswapMVMRouter.deploy(router.address);
-  // await mvmRouter.deployed()
+  const mvmRouter = await UniswapMVMRouter.deploy(router.address);
+  await mvmRouter.deployed()
 
   // Attach mvm router exmaple
-  const mvmRouter = await UniswapMVMRouter.attach("0xBEB55554605314B7ADd09C8344FDAF1Ba81F74A5");
+  // const mvmRouter = await UniswapMVMRouter.attach("0x8AC23D51172c2356963073fB4E6f5ab9621e2e47");
   console.log("UniswapMVMRouter address: " + mvmRouter.address);
+  const mvmRouterAbi = new ethers.Contract(mvmRouter.address, UniswapMVMRouterABI.abi, deployer);
+  console.log("UniswapMVMRouter cnb nxc pair: ", await mvmRouterAbi.fetchPair("0x155bDfAb24f07630C27a3F31634B33F94eC4A634", "0xCc4623795F07CaFf65069704D5008778921456a5"));
 }
 
 main().catch((error) => {
