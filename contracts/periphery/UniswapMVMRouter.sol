@@ -67,10 +67,10 @@ contract UniswapMVMRouter {
     }
 
     function removeLiquidity(address tokenA, address tokenB, uint liquidity, uint amountAMin, uint amountBMin, address to) public {
-      address pair = UniswapV2Library.pairFor(IUniswapV2Router02(router).factory(), tokenA, tokenB);
+        address pair = UniswapV2Library.pairFor(IUniswapV2Router02(router).factory(), tokenA, tokenB);
 
-      IERC20(pair).approve(router, liquidity);
-      IUniswapV2Router02(router).removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, block.timestamp + AGE);
+        IERC20(pair).approve(router, liquidity);
+        IUniswapV2Router02(router).removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, block.timestamp + AGE);
     }
 
     function fetchPair(address tokenA, address tokenB) public view returns (address pair) {
