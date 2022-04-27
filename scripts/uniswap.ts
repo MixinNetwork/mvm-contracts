@@ -22,7 +22,7 @@ async function main() {
   console.log("UniswapV2Factory allPairs", await factoryAbi.allPairs('0x02'));
   // fetch a uniswap pair by tokenA and tokenB
   console.log("UniswapV2Factory getPair", await factoryAbi.getPair("0xd6684C8Dd9c57C2c33c37Fe5e06d7D2fC0643F09", "0xDF7d6a8b29C6C059d3B6fD0E1E4EBdE776590A9e"));
-  const pair = new ethers.Contract("0x704cCd25904468265D1aD6aAf1FfFb86D6Afc542", UniswapPairABI.abi, deployer);
+  const pair = new ethers.Contract("0xACe47661455660656E0CC9001F34Ff6870ac01fF", UniswapPairABI.abi, deployer);
   const reserves = await pair.getReserves();
   // fetch a uniswap pair reserves
   console.log("UniswapV2Pair getReserves", reserves[0], reserves[1], reserves);
@@ -46,10 +46,11 @@ async function main() {
   // await mvmRouter.deployed()
 
   // Attach mvm router exmaple
-  const mvmRouter = await UniswapMVMRouter.attach("0x93634C04c4e76f680B0e7fe75645579d72ba11A6");
+  const mvmRouter = await UniswapMVMRouter.attach("0xB024433639dCeaaa6eD7D9D4d4a9926A93337f0b");
   console.log("UniswapMVMRouter address: " + mvmRouter.address);
   const mvmRouterAbi = new ethers.Contract(mvmRouter.address, UniswapMVMRouterABI.abi, deployer);
   console.log("UniswapMVMRouter cnb nxc pair: ", await mvmRouterAbi.fetchPair("0x155bDfAb24f07630C27a3F31634B33F94eC4A634", "0xCc4623795F07CaFf65069704D5008778921456a5"));
+  console.log("UniswapMVMRouter operations:", await mvmRouterAbi.operations("0x8a9f2B6492A3E24B1D2b92ad29E80549Be6B21Cc"));
 }
 
 main().catch((error) => {
