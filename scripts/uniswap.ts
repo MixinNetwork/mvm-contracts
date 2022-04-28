@@ -46,7 +46,7 @@ async function main() {
   // await mvmRouter.deployed()
 
   // Attach mvm router exmaple
-  const mvmRouter = await UniswapMVMRouter.attach("0xB024433639dCeaaa6eD7D9D4d4a9926A93337f0b");
+  const mvmRouter = await UniswapMVMRouter.attach("0x5859D7d46D55B286e03EEe257F2007b076B50Db9");
   console.log("UniswapMVMRouter address: " + mvmRouter.address);
   const mvmRouterAbi = new ethers.Contract(mvmRouter.address, UniswapMVMRouterABI.abi, deployer);
   console.log("UniswapMVMRouter cnb nxc pair: ", await mvmRouterAbi.fetchPair("0x155bDfAb24f07630C27a3F31634B33F94eC4A634", "0xCc4623795F07CaFf65069704D5008778921456a5"));
