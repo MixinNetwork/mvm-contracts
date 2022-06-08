@@ -21,12 +21,12 @@ async function main() {
   });
   // https://github.com/MixinNetwork/trusted-group/blob/master/mvm/quorum/contracts/mixin.sol#L27
   // ["2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425", "007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c", "2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673",  "257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f"]
-  // registry PID: 041781e6-eb19-3c4a-bcd4-f4a23112d112
-  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0x041781e6eb193c4abcd4f4a23112d112");
+  // registry PID: 0c685a85-8fb0-326d-befd-3ee55370dbcf
+  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0x0c685a858fb0326dbefd3ee55370dbcf");
   // await registry.deployed();
-  const registry = Registry.attach("0x2139b46ab7F3FF61EdEE83C11AEE749d7e653398");
+  const registry = Registry.attach("0x98a33e3317214cfeE4E6451AC4Eb3210e055f5aC");
   // publish registry through bot: 7000103716, command:
-  // publish 041781e6-eb19-3c4a-bcd4-f4a23112d112:0x2139b46ab7F3FF61EdEE83C11AEE749d7e653398:META
+  // publish 0c685a85-8fb0-326d-befd-3ee55370dbcf:0x2139b46ab7F3FF61EdEE83C11AEE749d7e653398:META
   console.log("registry deployed to:", registry.address);
   const registryAbi = new ethers.Contract(registry.address, RegistryABI.abi, deployer);
   // Fetch user id by evm address
