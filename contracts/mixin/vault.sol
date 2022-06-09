@@ -13,7 +13,7 @@ contract Vault {
   }
 
   function withdraw(address asset, uint256 amount) public {
-    require(balances[asset][msg.sender] > amount);
+    require(balances[asset][msg.sender] >= amount);
     balances[asset][msg.sender] -= amount;
     IERC20(asset).transfer(msg.sender, amount);
   }
