@@ -22,9 +22,9 @@ async function main() {
   // https://github.com/MixinNetwork/trusted-group/blob/master/mvm/quorum/contracts/mixin.sol#L27
   // ["2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425", "007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c", "2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673",  "257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f"]
   // registry PID: b865aac1-5932-3dbe-9366-dcc61d81ad7f
-  const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0xb865aac159323dbe9366dcc61d81ad7f");
-  await registry.deployed();
-  // const registry = Registry.attach("0x22d40C08E976D16d73F322DB19B067dDe5F05aa7");
+  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0xb865aac159323dbe9366dcc61d81ad7f");
+  // await registry.deployed();
+  const registry = Registry.attach("0x22d40C08E976D16d73F322DB19B067dDe5F05aa7");
   // publish registry through bot: 7000103716, command:
   // publish b865aac1-5932-3dbe-9366-dcc61d81ad7f:0x22d40C08E976D16d73F322DB19B067dDe5F05aa7:META
   console.log("registry deployed to:", registry.address);
