@@ -10,6 +10,10 @@ describe("Mixin", function () {
     const bls = await BLS.deploy();
     await bls.deployed();
 
+    const EternalStorage = await ethers.getContractFactory("EternalStorage");
+    const storage = await EternalStorage.deploy();
+    await storage.deployed();
+
     const Registry = await ethers.getContractFactory("Registry", {
       libraries: {
         BLS: bls.address,
@@ -20,7 +24,10 @@ describe("Mixin", function () {
 
     const value = '0x01a19e2d55765cd2f2dc02d5c872ea9fbf76d59515c0e3ee6b000000000000000000000000b39180a9997b9c30fe61280a9d02ee123701fd910000000000000000000000002846c7ee79fff52afa1f9ab229d5c08b006d7ca50000000000000000000000000000000000000000000000000000000007478a68000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000262963c7e4261b9c17d210eac8b533b9c2667e2';
     const key: string = ethers.utils.keccak256(value);
-    await registry.writeValue(key, value);
+    await registry.writeValue(storage.address, key, value);
+    expect(await storage.getBytesValue(key)).to.equal(value);
+    expect(await storage.getBytesValue(key)).to.not.equal("0x1234");
+    return;
 
     const raw = "0xb865aac159323dbe9366dcc61d81ad7f0000000000000007965e5c6e434c3fa9b780c50f43cd955c00010100320003434e42000b43687569204e69752042695b87aece59dbed74806e12d1311ed01fb21203524ae5579ad02ab31a871f3bd216f733d634bfda280001e9e5b807fa8b455a8dfab189d28310ff0001004014889903c2112db14c8d9361993467bd7fefa45bdb08adc50451337b4fc06c8e24972e87630ed1a5bcb8c425b2c4cf46f4eff9451b6ef7dbea2b09c7dcd112ff";
     const mixinTx = await registry.mixin(raw);
