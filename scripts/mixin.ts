@@ -14,6 +14,12 @@ async function main() {
   // await bls.deployed();
   console.log("bls deployed to:", bls.address);
 
+  const Storage = await ethers.getContractFactory("EternalStorage");
+  // const storage = await Storage.deploy();
+  // await storage.deployed();
+  const storage = await BLS.attach("0x510a9f1AAbE048912F6536A833ecB6039061e872");
+  console.log("storage deployed to:", storage.address);
+
   const Registry = await ethers.getContractFactory("Registry", {
     libraries: {
       BLS: bls.address,
@@ -21,12 +27,12 @@ async function main() {
   });
   // https://github.com/MixinNetwork/trusted-group/blob/master/mvm/quorum/contracts/mixin.sol#L27
   // ["2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425", "007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c", "2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673",  "257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f"]
-  // registry PID: b865aac1-5932-3dbe-9366-dcc61d81ad7f
-  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0xb865aac159323dbe9366dcc61d81ad7f");
+  // registry PID: 119f84c9-9f72-31b5-af71-611de05dace8
+  // const registry = await Registry.deploy("0x2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f", "0x119f84c99f7231b5af71611de05dace8");
   // await registry.deployed();
-  const registry = Registry.attach("0x22d40C08E976D16d73F322DB19B067dDe5F05aa7");
+  const registry = Registry.attach("0xbb0860774b68b4Aaa07ED32fb118dA39e5b18454");
   // publish registry through bot: 7000103716, command:
-  // publish b865aac1-5932-3dbe-9366-dcc61d81ad7f:0x22d40C08E976D16d73F322DB19B067dDe5F05aa7:META
+  // publish 119f84c9-9f72-31b5-af71-611de05dace8:0xbb0860774b68b4Aaa07ED32fb118dA39e5b18454:META
   console.log("registry deployed to:", registry.address);
   const registryAbi = new ethers.Contract(registry.address, RegistryABI.abi, deployer);
   // Fetch user id by evm address
