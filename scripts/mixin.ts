@@ -17,7 +17,7 @@ async function main() {
   const Storage = await ethers.getContractFactory("EternalStorage");
   // const storage = await Storage.deploy();
   // await storage.deployed();
-  const storage = await BLS.attach("0x510a9f1AAbE048912F6536A833ecB6039061e872");
+  const storage = await Storage.attach("0x510a9f1AAbE048912F6536A833ecB6039061e872");
   console.log("storage deployed to:", storage.address);
 
   const Registry = await ethers.getContractFactory("Registry", {
@@ -65,6 +65,14 @@ async function main() {
   // await refund.deployed();
   let refund = SimpleRefund.attach("0x07B0bF340765CAE77b734D82EB8d35229796CeBc");
   console.log("Refund address:", refund.address);
+
+  let key = "0x4e7f836e7deab9dd6160277fac3c501fbaf5269e84bf032a3c91137ba8a73d9b";
+  const value = "0x000bbe54e2b11d6671238edb6fb3ed83f73a1ca3df38ed17390000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000d090add2aceb4b800000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000bf7c691c00de8e3d647d5258ebaec87857a1838d0000000000000000000000000000000000000000000000000000000062a201b90000000000000000000000000000000000000000000000000000000000000002000000000000000000000000155bdfab24f07630c27a3f31634b33f94ec4a634000000000000000000000000cc4623795f07caff65069704d5008778921456a5";
+  await registry.writeValue(storage.address, key, value);
+  console.log("getBytesValue:", await storage.getBytesValue(key));
+  key = ethers.utils.keccak256("0x12345678");
+  await registry.writeValue(storage.address, key, "0x12345678");
+  console.log("getBytesValue:", await storage.getBytesValue(key));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
