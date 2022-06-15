@@ -116,7 +116,6 @@ contract Registry {
     mapping(address => bytes) public users;
     mapping(address => uint128) public assets;
     mapping(uint => address) public contracts;
-    mapping(uint => bytes) public values;
     mapping(uint128 => uint256) public balances;
     address[] public addresses;
     uint128[] public deposits;
@@ -260,9 +259,6 @@ contract Registry {
         (offset, evt.extra, evt.timestamp) = parseEventExtra(raw, offset);
         (offset, evt.user) = parseEventUser(raw, offset);
 
-        bool isDelegatecall;
-        (evt.asset, evt.extra, isDelegatecall) = parseEventInput(id, evt.extra);
-
         offset = offset + 2;
         evt.sig = [raw.toUint256(offset), raw.toUint256(offset+32)];
         uint256[2] memory message = raw.slice(0, offset-2).concat(new bytes(2)).hashToPoint();
@@ -280,7 +276,7 @@ contract Registry {
 
         emit MixinEvent(evt);
         MixinAsset(evt.asset).mint(evt.user, evt.amount);
-        return MixinUser(evt.user).run(evt.asset, evt.amount, evt.extra, isDelegatecall);
+        return MixinUser(evt.user).run(evt.asset, evt.amount, evt.extra);
     }
 
     function parseEventExtra(bytes memory raw, uint offset) internal pure returns(uint, bytes memory, uint64) {
@@ -314,7 +310,7 @@ contract Registry {
         return (offset, user);
     }
 
-    function parseEventInput(uint128 id, bytes memory extra) internal returns (address, bytes memory, bool) {
+    function parseEventInput(uint128 id, bytes memory extra) internal returns (address, bytes memory) {
         uint offset = 0;
         uint16 size = extra.toUint16(offset);
         offset = offset + 2;

@@ -12,8 +12,6 @@ contract UniswapMVMRouter {
     uint256 constant AGE = 300;
     mapping(address => Operation) public operations;
 
-    bytes4 private constant SELECTOR = bytes4(keccak256(bytes('claim(address,uint256)')));
-
     struct Operation {
         address asset;
         uint256 amount;
