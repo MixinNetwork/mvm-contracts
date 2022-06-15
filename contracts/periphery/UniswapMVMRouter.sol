@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity =0.6.6;
 
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
@@ -21,7 +22,7 @@ contract UniswapMVMRouter {
         router = _router;
     }
 
-    function addLiquidity(address asset, uint256 amount) public {        
+    function addLiquidity(address asset, uint256 amount) public {
         IERC20(asset).transferFrom(msg.sender, address(this), amount);
 
         Operation memory op = operations[msg.sender];
@@ -40,7 +41,9 @@ contract UniswapMVMRouter {
             return;
         }
 
+        IERC20(op.asset).approve(router, 0);
         IERC20(op.asset).approve(router, op.amount);
+        IERC20(asset).approve(router, 0);
         IERC20(asset).approve(router, amount);
 
         uint256 amountA = op.amount;
@@ -61,6 +64,18 @@ contract UniswapMVMRouter {
             IERC20(asset).transfer(msg.sender, amount - amountB);
         }
         operations[msg.sender].asset = address(0);
+    }
+
+    function removeLiquidity(address tokenA, address tokenB, uint liquidity, uint amountAMin, uint amountBMin, address to) public {
+        address pair = UniswapV2Library.pairFor(IUniswapV2Router02(router).factory(), tokenA, tokenB);
+
+        IERC20(pair).approve(router, 0);
+        IERC20(pair).approve(router, liquidity);
+        IUniswapV2Router02(router).removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, block.timestamp + AGE);
+    }
+
+    function fetchPair(address tokenA, address tokenB) public view returns (address pair) {
+        pair = UniswapV2Library.pairFor(IUniswapV2Router02(router).factory(), tokenA, tokenB);
     }
 
     function claim() public {
