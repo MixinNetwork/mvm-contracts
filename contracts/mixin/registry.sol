@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0 <0.9.0;
 
+import './EternalStorage.sol';
 import {BytesLib} from './bytes.sol';
 import {BLS} from './bls.sol';
 import {StandardToken} from './erc20.sol';
@@ -31,16 +32,20 @@ contract MixinUser is Registrable {
         members = _members;
     }
 
-    function run(address asset, uint256 amount, bytes memory extra, bool isDelegatecall) external onlyRegistry() returns (bool result) {
-        if (extra.length < 24) {
+    // extra = operate code || process || function name
+    // operate code: 0 for call, 1 for delegate call
+    // https://docs.soliditylang.org/en/v0.8.14/introduction-to-smart-contracts.html#delegatecall-callcode-and-libraries
+    function run(address asset, uint256 amount, bytes memory extra) external onlyRegistry() returns (bool result) {
+        if (extra.length < 25) {
             Registry(registry).claim(asset, amount);
             return true;
         }
-        address process = extra.toAddress(0);
+        uint8 op = extra.toUint8(0);
+        address process = extra.toAddress(1);
         MixinAsset(asset).approve(process, 0);
         MixinAsset(asset).approve(process, amount);
-        bytes memory input = extra.slice(20, extra.length - 20);
-        if (isDelegatecall) {
+        bytes memory input = extra.slice(21, extra.length - 21);
+        if (op & 1 == 1) {
             (result, input) = process.delegatecall(input);
         } else {
             (result, input) = process.call(input);
@@ -321,27 +326,14 @@ contract Registry {
         offset = offset + size;
         bytes memory input = extra.slice(offset, extra.length - offset);
         address asset = getOrCreateAssetContract(id, symbol, name);
-        if (input.length < 24) {
-            return (asset, input, false);
+        if (input.length == 68 && input.toUint128(0) == PID) {
+            input = EternalStorage(input.toAddress(16)).getBytesValue(input.toBytes32(36));
         }
-        uint8 op = input.toUint8(0);
-        input = input.slice(1, input.length - 1);
-        bool hasValue = op & 1 == 1;
-        if (hasValue && input.length >= 32) {
-            bytes memory value = values[input.toUint256(0)];
-             if (value.length > 0) {
-                input = value;
-            }
-        }
-        op = op >> 1;
-        bool isDelegatecall = op & 1 == 1;
-        return (asset, input, isDelegatecall);
+        return (asset, input);
     }
 
-    function writeValue(uint _key, bytes memory raw) public {
-        uint key = uint256(keccak256(raw));
-        require(key == _key, "invalid key or raw");
-        values[key] = raw;
+    function writeValue(address _storageContract, bytes32 _key, bytes memory raw) public {
+        EternalStorage(_storageContract).setBytesValue(_key, raw);
     }
 
     function getOrCreateAssetContract(uint128 id, string memory symbol, string memory name) internal returns (address) {
