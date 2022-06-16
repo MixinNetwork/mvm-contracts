@@ -14,7 +14,7 @@ async function main() {
   // await bls.deployed();
   console.log("bls deployed to:", bls.address);
 
-  const Storage = await ethers.getContractFactory("EternalStorage");
+  const Storage = await ethers.getContractFactory("Storage");
   // const storage = await Storage.deploy();
   // await storage.deployed();
   const storage = await Storage.attach("0x510a9f1AAbE048912F6536A833ecB6039061e872");

@@ -8,8 +8,7 @@
  */
 pragma solidity >=0.8.0 <0.9.0;
 
-
-library BytesLib {
+library Bytes {
     function concat(
         bytes memory _preBytes,
         bytes memory _postBytes

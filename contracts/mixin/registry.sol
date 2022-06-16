@@ -1,101 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import './EternalStorage.sol';
-import {BytesLib} from './bytes.sol';
-import {BLS} from './bls.sol';
-import {StandardToken} from './erc20.sol';
+import {Bytes} from './libs/Bytes.sol';
+import {BLS} from './libs/BLS.sol';
+import {Storage} from './Storage.sol';
+import {IRegistry,Registrable} from './Registrable.sol';
+import {Asset} from './Asset.sol';
+import {User} from './User.sol';
 
-contract Registrable {
-    address public registry;
-
-    modifier onlyRegistry() {
-        require(msg.sender == registry, "not registry");
-        _;
-    }
-
-    constructor() {
-        registry = msg.sender;
-    }
-
-    function evolve(address next) public onlyRegistry() {
-        registry = next;
-    }
-}
-
-contract MixinUser is Registrable {
-    using BytesLib for bytes;
-
-    bytes public members;
-
-    constructor(bytes memory _members) {
-        members = _members;
-    }
-
-    // extra = operate code || process || function name
-    // operate code: 0 for call, 1 for delegate call
-    // https://docs.soliditylang.org/en/v0.8.14/introduction-to-smart-contracts.html#delegatecall-callcode-and-libraries
-    function run(address asset, uint256 amount, bytes memory extra) external onlyRegistry() returns (bool result) {
-        if (extra.length < 25) {
-            Registry(registry).claim(asset, amount);
-            return true;
-        }
-        uint8 op = extra.toUint8(0);
-        address process = extra.toAddress(1);
-        MixinAsset(asset).approve(process, 0);
-        MixinAsset(asset).approve(process, amount);
-        bytes memory input = extra.slice(21, extra.length - 21);
-        if (op & 1 == 1) {
-            (result, input) = process.delegatecall(input);
-        } else {
-            (result, input) = process.call(input);
-        }
-        try Registry(registry).claim(asset, amount) {} catch {}
-        return result;
-    }
-}
-
-contract MixinAsset is Registrable, StandardToken {
-    uint128 public immutable id;
-
-    string public name;
-    string public symbol;
-    uint256 public totalSupply;
-    uint8 public constant decimals = 8;
-
-    constructor(uint128 _id, string memory _name, string memory _symbol) {
-        id = _id;
-        name = _name;
-        symbol = _symbol;
-    }
-
-    function transfer(address to, uint256 value) public override returns (bool) {
-        _transfer(msg.sender, to, value);
-        Registry(registry).burn(to, value);
-        return true;
-    }
-
-    function transferFrom(address from, address to, uint256 value) public override returns (bool) {
-        _transferFrom(from, to, value);
-        Registry(registry).burn(to, value);
-        return true;
-    }
-
-    function mint(address to, uint256 value) external onlyRegistry() {
-        balances[to] = balances[to] + value;
-        totalSupply = totalSupply + value;
-        emit Transfer(registry, to, value);
-    }
-
-    function burn(address to, uint256 value) external onlyRegistry() {
-        balances[to] = balances[to] - value;
-        totalSupply = totalSupply - value;
-        emit Transfer(to, registry, value);
-    }
-}
-
-contract Registry {
-    using BytesLib for bytes;
+contract Registry is IRegistry {
+    using Bytes for bytes;
     using BLS for uint256[2];
     using BLS for bytes;
 
@@ -143,6 +57,7 @@ contract Registry {
     }
 
     function iterate(bytes memory raw) public {
+        require(HALTED, "invalid state");
         require(raw.length == 256, "invalid input size");
         uint256[4] memory group = [raw.toUint256(0), raw.toUint256(32), raw.toUint256(64), raw.toUint256(96)];
         uint256[2] memory sig1 = [raw.toUint256(128), raw.toUint256(160)];
@@ -160,44 +75,10 @@ contract Registry {
         HALTED = true;
     }
 
-    function evolve(bytes memory raw) public {
-        require(HALTED, "invalid state");
-        Registry next = Registry(raw.toAddress(0));
-        uint256[2] memory sig = [raw.toUint256(20), raw.toUint256(52)];
-        uint256[2] memory message = raw.slice(0, 20).hashToPoint();
-        require(sig.verifySingle(GROUP, message));
-        require(next.INBOUND() == INBOUND);
-        require(next.OUTBOUND() == OUTBOUND);
-        require(next.PID() != PID);
-        for (uint i = 0; i < addresses.length; i++) {
-            address addr = next.addresses(i);
-            require(addr == addresses[i]);
-            bytes memory members = users[addr];
-            if (members.length > 0) {
-                uint id = uint256(keccak256(members));
-                require(next.contracts(id) == addr);
-                MixinUser(addr).evolve(address(next));
-            } else {
-                uint128 asset = assets[addr];
-                require(next.contracts(asset) == addr);
-                MixinAsset(addr).evolve(address(next));
-            }
-        }
-        for (uint i = 0; i < deposits.length; i++) {
-            uint128 asset = deposits[i];
-            uint256 amount = balances[asset] - BALANCE;
-            bytes memory user = new bytes(0); // TODO should be the new regsitry PID
-            bytes memory extra = new bytes(0); // TODO should be ABI of pure deposit to registry
-            bytes memory log = buildMixinTransaction(OUTBOUND, user, asset, amount, extra);
-            emit MixinTransaction(log);
-            OUTBOUND = OUTBOUND + 1;
-        }
-    }
-
-    function claim(address asset, uint256 amount) public returns (bool) {
+    function claim(address asset, uint256 amount) external returns (bool) {
         require(users[msg.sender].length > 0, "invalid user");
         require(assets[asset] > 0, "invalid asset");
-        MixinAsset(asset).burn(msg.sender, amount);
+        Asset(asset).burn(msg.sender, amount);
         sendMixinTransaction(msg.sender, asset, amount);
         return true;
     }
@@ -207,7 +88,7 @@ contract Registry {
         if (users[user].length == 0) {
             return true;
         }
-        MixinAsset(msg.sender).burn(user, amount);
+        Asset(msg.sender).burn(user, amount);
         sendMixinTransaction(user, msg.sender, amount);
         return true;
     }
@@ -276,8 +157,8 @@ contract Registry {
         balances[assets[evt.asset]] = balance + evt.amount;
 
         emit MixinEvent(evt);
-        MixinAsset(evt.asset).mint(evt.user, evt.amount);
-        return MixinUser(evt.user).run(evt.asset, evt.amount, evt.extra);
+        Asset(evt.asset).mint(evt.user, evt.amount);
+        return User(evt.user).run(evt.asset, evt.amount, evt.extra);
     }
 
     function parseEventExtra(bytes memory raw, uint offset) internal pure returns(uint, bytes memory, uint64) {
@@ -322,15 +203,11 @@ contract Registry {
         string memory name = string(extra.slice(offset, size));
         offset = offset + size;
         bytes memory input = extra.slice(offset, extra.length - offset);
-        address asset = getOrCreateAssetContract(id, symbol, name);
         if (input.length == 68 && input.toUint128(0) == PID) {
-            input = EternalStorage(input.toAddress(16)).getBytesValue(input.toBytes32(36));
+            input = Storage(input.toAddress(16)).read(input.toUint256(36));
         }
+        address asset = getOrCreateAssetContract(id, symbol, name);
         return (asset, input);
-    }
-
-    function writeValue(address _storageContract, bytes32 _key, bytes memory raw) public {
-        EternalStorage(_storageContract).setBytesValue(_key, raw);
     }
 
     function getOrCreateAssetContract(uint128 id, string memory symbol, string memory name) internal returns (address) {
@@ -373,13 +250,13 @@ contract Registry {
     }
 
     function getUserContractCode(bytes memory members) internal pure returns (bytes memory) {
-        bytes memory code = type(MixinUser).creationCode;
+        bytes memory code = type(User).creationCode;
         bytes memory args = abi.encode(members);
         return abi.encodePacked(code, args);
     }
 
     function getAssetContractCode(uint id, string memory symbol, string memory name) internal pure returns (bytes memory) {
-        bytes memory code = type(MixinAsset).creationCode;
+        bytes memory code = type(Asset).creationCode;
         bytes memory args = abi.encode(id, name, symbol);
         return abi.encodePacked(code, args);
     }
