@@ -15,6 +15,8 @@ contract Registry is IRegistry {
 
     event UserCreated(address at, bytes members);
     event AssetCreated(address at, uint id);
+    event Halted(bool state);
+    event Iterated(uint256[4] from, uint256[4] to);
     event MixinTransaction(bytes);
     event MixinEvent(Event evt);
 
@@ -63,16 +65,19 @@ contract Registry is IRegistry {
         uint256[2] memory sig1 = [raw.toUint256(128), raw.toUint256(160)];
         uint256[2] memory sig2 = [raw.toUint256(192), raw.toUint256(224)];
         uint256[2] memory message = raw.slice(0, 128).hashToPoint();
-        require(sig1.verifySingle(GROUP, message));
-        require(sig2.verifySingle(group, message));
+        require(sig1.verifySingle(GROUP, message), "invalid signature");
+        require(sig2.verifySingle(group, message), "invalid signature");
+        emit Iterated(GROUP, group);
         GROUP = group;
     }
 
     function halt(bytes memory raw) public {
+        bytes memory input = bytes("HALT").concat(uint64ToFixedBytes(INBOUND));
         uint256[2] memory sig = [raw.toUint256(0), raw.toUint256(32)];
-        uint256[2] memory message = bytes("HALT").hashToPoint();
-        require(sig.verifySingle(GROUP, message));
-        HALTED = true;
+        uint256[2] memory message = input.hashToPoint();
+        require(sig.verifySingle(GROUP, message), "invalid signature");
+        HALTED = !HALTED;
+        emit Halted(HALTED);
     }
 
     function claim(address asset, uint256 amount) external returns (bool) {
