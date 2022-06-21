@@ -8,23 +8,19 @@ async function main() {
   console.log("Deploying contracts with the account: " + deployer.address);
   console.log("Deployer balance", await deployer.getBalance());
 
-  const BLS = await ethers.getContractFactory("BLS");
-  const bls = await BLS.attach("0xC164E080B874921F49199de49695dd511d2e5D52");
+  // const BLS = await ethers.getContractFactory("BLS");
+  // const bls = await BLS.attach("0xC164E080B874921F49199de49695dd511d2e5D52");
   // const bls = await BLS.deploy();
   // await bls.deployed();
-  console.log("bls deployed to:", bls.address);
+  // console.log("bls deployed to:", bls.address);
 
   const Storage = await ethers.getContractFactory("Storage");
-  // const storage = await Storage.deploy();
-  // await storage.deployed();
-  const storage = await Storage.attach("0x510a9f1AAbE048912F6536A833ecB6039061e872");
+  const storage = await Storage.deploy();
+  await storage.deployed();
+  // const storage = await Storage.attach("0x510a9f1AAbE048912F6536A833ecB6039061e872");
   console.log("storage deployed to:", storage.address);
 
-  const Registry = await ethers.getContractFactory("Registry", {
-   // libraries: {
-   //   BLS: bls.address,
-   // },
-  });
+  const Registry = await ethers.getContractFactory("Registry", {});
   // https://github.com/MixinNetwork/trusted-group/blob/master/mvm/quorum/contracts/mixin.sol#L27
   // ["2f741961cea2e88cfa2680eeaac040d41f41f3fedb01e38c06f4c6058fd7e425", "007d68aef83f9690b04f463e13eadd9b18f4869041f1b67e7f1a30c9d1d2c42c", "2a32fa1736807486256ad8dc6a8740dfb91917cf8d15848133819275be92b673",  "257ad901f02f8a442ccf4f1b1d0d7d3a8e8fe791102706e575d36de1c2a4a40f"]
   // registry PID: 119f84c9-9f72-31b5-af71-611de05dace8
