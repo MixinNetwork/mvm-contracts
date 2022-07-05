@@ -1,4 +1,4 @@
-// yarn hardhat run --network quorum scripts/mixin.ts
+// yarn hardhat run --network testnet scripts/testnet.ts
 import { ethers } from "hardhat";
 const BridgeABI = require('../artifacts/contracts/mixin/bridge.sol/Bridge.json');
 const RegistryABI = require('../artifacts/contracts/mixin/Registry.sol/Registry.json');
