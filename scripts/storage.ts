@@ -15,11 +15,11 @@ async function main() {
   console.log("storage deployed to:", storage.address);
 
   const storageAbi = new ethers.Contract(storage.address, StorageABI.abi, deployer);
-  const value = ethers.utils.toUtf8Bytes("hello world");
+  const value = "0x012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
   const key = ethers.utils.keccak256(value);
   await storageAbi.write(key, value);
   const resp = await storageAbi.read(key);
-  console.log(ethers.utils.toUtf8String(resp));
+  console.log(key);
 }
 
 main().catch((error) => {
